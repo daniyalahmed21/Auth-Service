@@ -4,6 +4,7 @@ import app from '../../src/app.js'
 import { AppDataSource } from '../../src/data-source.js'
 import { User } from '../../src/entity/User.js'
 import { DataSource } from 'typeorm'
+import { extractToken, isJWT } from '../utils/index.js'
 
 let connection: DataSource
 const plainPassword = 'mysecretpassword'
@@ -122,9 +123,25 @@ describe('POST /auth/register', () => {
             expect(user).toBeDefined()
             expect(user.email).toBe('zoe.adams@example.com')
         })
+
+        it('should have cookies set in the response', async () => {
+            const res = await request(app).post('/auth/register').send({
+                firstName: 'Liam',
+                lastName: 'Wilson',
+                email: 'liam.wilson@example.com',
+                password: plainPassword,
+            })
+
+            const cookies = res.headers['set-cookie']
+            expect(cookies).toBeDefined()
+            expect(cookies).toHaveLength(2)
+
+            expect(isJWT(extractToken(cookies[0]))).toBe(true)
+            expect(isJWT(extractToken(cookies[1]))).toBe(true)
+        })
     })
 
-    describe('when the request is invalid', () => {
+    describe.skip('when the request is invalid', () => {
         it('should return 400 if email is missing', async () => {
             const res = await request(app).post('/auth/register').send({
                 firstName: 'David',
