@@ -31,4 +31,12 @@ export default checkSchema({
             errorMessage: 'First name must be a string',
         },
     },
+    lastName: {
+        notEmpty: {
+            errorMessage: 'Last name is required',
+        },
+        isString: {
+            errorMessage: 'Last name must be a string',
+        },
+    },
 })

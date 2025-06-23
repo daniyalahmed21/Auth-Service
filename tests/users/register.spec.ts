@@ -168,5 +168,25 @@ describe('POST /auth/register', () => {
                 'Password must be at least 6 characters long'
             )
         })
+
+        it('should return 400 if first name is missing', async () => {
+            const res = await request(app).post('/auth/register').send({
+                lastName: 'Orange',
+                email: 'grace.orange@example.com',
+                password: plainPassword,
+            })
+            expect(res.status).toBe(400)
+            expect(res.body.errors[0].msg).toBe('First name is required')
+        })
+
+        it('should return 400 if last name is missing', async () => {
+            const res = await request(app).post('/auth/register').send({
+                firstName: 'Hank',
+                email: 'grace.hank@example.com',
+                password: plainPassword,
+            })
+            expect(res.status).toBe(400)
+            expect(res.body.errors[0].msg).toBe('Last name is required')
+        })
     })
 })
