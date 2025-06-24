@@ -108,6 +108,20 @@ describe('POST /auth/register', () => {
             expect(res.status).toBe(400)
             expect(res.body.error[0].message).toBe('Email already registered')
         })
+
+        it('should trim whitespace from email', async () => {
+            await request(app).post('/auth/register').send({
+                firstName: 'Zoe',
+                lastName: 'Adams',
+                email: '   zoe.adams@example.com    ',
+                password: plainPassword,
+            })
+
+            const users = await connection.getRepository(User).find()
+            const user = users[0]
+            expect(user).toBeDefined()
+            expect(user.email).toBe('zoe.adams@example.com')
+        })
     })
 
     describe('when the request is invalid', () => {
