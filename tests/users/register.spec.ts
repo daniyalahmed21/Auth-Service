@@ -6,6 +6,7 @@ import { User } from '../../src/entity/User.js'
 import { DataSource } from 'typeorm'
 
 let connection: DataSource
+const plainPassword = 'mysecretpassword'
 
 describe('POST /auth/register', () => {
     beforeAll(async () => {
@@ -32,7 +33,7 @@ describe('POST /auth/register', () => {
                 firstName: 'John',
                 lastName: 'Doe',
                 email: 'john.doe@example.com',
-                password: '123',
+                password: plainPassword,
             })
 
             expect(res.status).toBe(201)
@@ -45,7 +46,7 @@ describe('POST /auth/register', () => {
                 firstName: 'Jane',
                 lastName: 'Smith',
                 email: 'jane.smith@example.com',
-                password: '456',
+                password: plainPassword,
             })
 
             const users = await connection
@@ -62,7 +63,7 @@ describe('POST /auth/register', () => {
                 firstName: 'Alice',
                 lastName: 'Johnson',
                 email: 'alice.johnson@example.com',
-                password: '789',
+                password: plainPassword,
             })
 
             expect(res.body.id).toBeDefined()
@@ -73,7 +74,7 @@ describe('POST /auth/register', () => {
                 firstName: 'Bob',
                 lastName: 'Brown',
                 email: 'bob.brown@example.com',
-                password: '012',
+                password: plainPassword,
             })
             const user = await connection
                 .getRepository(User)
@@ -82,7 +83,6 @@ describe('POST /auth/register', () => {
         })
 
         it('should hash the user password before saving', async () => {
-            const plainPassword = 'mysecretpassword'
             await request(app).post('/auth/register').send({
                 firstName: 'Charlie',
                 lastName: 'Davis',
@@ -101,12 +101,58 @@ describe('POST /auth/register', () => {
                 firstName: 'Eve',
                 lastName: 'White',
                 email: 'charlie.davis@example.com',
-                password: '345',
+                password: plainPassword,
             }
             await request(app).post('/auth/register').send(userData)
             const res = await request(app).post('/auth/register').send(userData)
             expect(res.status).toBe(400)
             expect(res.body.error[0].message).toBe('Email already registered')
+        })
+    })
+
+    describe('when the request is invalid', () => {
+        it('should return 400 if email is missing', async () => {
+            const res = await request(app).post('/auth/register').send({
+                firstName: 'David',
+                lastName: 'Green',
+                password: plainPassword,
+            })
+            expect(res.status).toBe(400)
+            expect(res.body.errors[0].msg).toBe('Email is required')
+        })
+
+        it('should return 400 if email is not valid', async () => {
+            const res = await request(app).post('/auth/register').send({
+                firstName: 'Emily',
+                lastName: 'Black',
+                email: 'invalid-email',
+                password: plainPassword,
+            })
+            expect(res.status).toBe(400)
+            expect(res.body.errors[0].msg).toBe('Email is not valid')
+        })
+
+        it('should return 400 if password is missing', async () => {
+            const res = await request(app).post('/auth/register').send({
+                firstName: 'Frank',
+                lastName: 'Yellow',
+                email: 'frank.yellow@example.com',
+            })
+            expect(res.status).toBe(400)
+            expect(res.body.errors[0].msg).toBe('Password is required')
+        })
+
+        it('should return 400 if password is too short', async () => {
+            const res = await request(app).post('/auth/register').send({
+                firstName: 'Grace',
+                lastName: 'Blue',
+                email: 'grace.blue@example.com',
+                password: '123',
+            })
+            expect(res.status).toBe(400)
+            expect(res.body.errors[0].msg).toBe(
+                'Password must be at least 6 characters long'
+            )
         })
     })
 })

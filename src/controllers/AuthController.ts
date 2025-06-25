@@ -3,6 +3,7 @@ import type { registerUserRequest } from '../types/index.js'
 import type { UserService } from '../services/UserService.js'
 import type { Logger } from 'winston'
 import { ROLES } from '../constants/index.js'
+import { validationResult } from 'express-validator'
 
 export class AuthController {
     constructor(
@@ -15,8 +16,17 @@ export class AuthController {
         res: Response,
         next: NextFunction
     ) {
+        const errors = validationResult(req)
+
+        if (!errors.isEmpty()) {
+            this.logger.error('Validation errors:', errors.array())
+            return res.status(400).json({ errors: errors.array() })
+        }
+
         const { firstName, lastName, email, password } = req.body
+
         this.logger.debug(`Registering user with email: ${email}`)
+
         try {
             const user = await this.userService.createUser({
                 firstName,
@@ -26,6 +36,7 @@ export class AuthController {
                 role: ROLES.CUSTOMER,
             })
             this.logger.info(`User registered with id: ${user.id}`)
+
             return res.status(201).json({
                 message: 'Registration successful',
                 id: user.id,
