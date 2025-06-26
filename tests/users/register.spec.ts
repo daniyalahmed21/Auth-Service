@@ -95,5 +95,18 @@ describe('POST /auth/register', () => {
             expect(user?.password).not.toBe(plainPassword)
             expect(user?.password).toMatch(/^\$2[ayb]\$.{56}$/)
         })
+
+        it('should return 400 if email is already registered', async () => {
+            const userData = {
+                firstName: 'Eve',
+                lastName: 'White',
+                email: 'charlie.davis@example.com',
+                password: '345',
+            }
+            await request(app).post('/auth/register').send(userData)
+            const res = await request(app).post('/auth/register').send(userData)
+            expect(res.status).toBe(400)
+            expect(res.body.error[0].message).toBe('Email already registered')
+        })
     })
 })

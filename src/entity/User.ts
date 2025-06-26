@@ -12,7 +12,7 @@ export class User {
     @Column('varchar')
     lastName: string
 
-    @Column('varchar')
+    @Column('varchar', { unique: true })
     email: string
 
     @Column('varchar')
