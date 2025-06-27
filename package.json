@@ -49,6 +49,7 @@
     },
     "dependencies": {
         "-": "^0.0.1",
+        "bcryptjs": "^3.0.3",
         "cross-env": "^10.1.0",
         "dotenv": "^17.2.3",
         "express": "^5.2.1",

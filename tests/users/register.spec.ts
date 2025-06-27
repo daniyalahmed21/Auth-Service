@@ -80,5 +80,20 @@ describe('POST /auth/register', () => {
                 .findOne({ where: { email: 'bob.brown@example.com' } })
             expect(user?.role).toBe('customer')
         })
+
+        it('should hash the user password before saving', async () => {
+            const plainPassword = 'mysecretpassword'
+            await request(app).post('/auth/register').send({
+                firstName: 'Charlie',
+                lastName: 'Davis',
+                email: 'charlie.davis@example.com',
+                password: plainPassword,
+            })
+            const user = await connection
+                .getRepository(User)
+                .findOne({ where: { email: 'charlie.davis@example.com' } })
+            expect(user?.password).not.toBe(plainPassword)
+            expect(user?.password).toMatch(/^\$2[ayb]\$.{56}$/)
+        })
     })
 })
