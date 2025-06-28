@@ -1,11 +1,12 @@
 import type { Request } from 'express'
+import type { Role } from '../constants/index.js'
 
 export interface UserData {
     firstName: string
     lastName: string
     email: string
     password: string
-    role: 'admin' | 'customer'
+    role: Role
 }
 
 export interface registerUserRequest extends Request {

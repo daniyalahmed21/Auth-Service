@@ -2,6 +2,7 @@ import type { NextFunction, Response } from 'express'
 import type { registerUserRequest } from '../types/index.js'
 import type { UserService } from '../services/UserService.js'
 import type { Logger } from 'winston'
+import { ROLES } from '../constants/index.js'
 
 export class AuthController {
     constructor(
@@ -22,7 +23,7 @@ export class AuthController {
                 lastName,
                 email,
                 password,
-                role: 'customer',
+                role: ROLES.CUSTOMER,
             })
             this.logger.info(`User registered with id: ${user.id}`)
             return res.status(201).json({
