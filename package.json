@@ -1,0 +1,20 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daniyalahmed21/Auth-Service.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/daniyalahmed21/Auth-Service/issues"
+  },
+  "homepage": "https://github.com/daniyalahmed21/Auth-Service#readme",
+  "description": ""
+}
