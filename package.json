@@ -16,5 +16,9 @@
     "url": "https://github.com/daniyalahmed21/Auth-Service/issues"
   },
   "homepage": "https://github.com/daniyalahmed21/Auth-Service#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "typescript": "^5.9.3"
+  }
 }
