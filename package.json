@@ -1,58 +1,57 @@
 {
-  "name": "auth-service",
-  "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
-    "dev": "nodemon --exec tsx src/server.ts",
-    "format:fix": "npx prettier . --write",
-    "format:check": "npx prettier . --check",
-    "lint:fix": "eslint . --fix",
-    "lint:check": "eslint .",
-    "prepare": "husky",
-    "test": "jest"
-  },
-  "type": "module",
-  "lint-staged": {
-    "*.ts": [
-      "npm run lint:fix",
-      "npm run format:fix"
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/daniyalahmed21/Auth-Service.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/daniyalahmed21/Auth-Service/issues"
-  },
-  "homepage": "https://github.com/daniyalahmed21/Auth-Service#readme",
-  "description": "",
-  "devDependencies": {
-    "@eslint/js": "^9.39.2",
-    "@types/express": "^5.0.6",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^25.2.0",
-    "@types/supertest": "^6.0.3",
-    "@types/winston": "^2.4.4",
-    "eslint": "^9.39.2",
-    "husky": "^9.1.7",
-    "jest": "^30.2.0",
-    "lint-staged": "^16.2.7",
-    "nodemon": "^3.1.11",
-    "prettier": "3.8.1",
-    "supertest": "^7.2.2",
-    "ts-jest": "^29.4.6",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0"
-  },
-  "dependencies": {
-    "-": "^0.0.1",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "http-errors": "^2.0.1",
-    "winston": "^3.19.0"
-  }
+    "name": "auth-service",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+        "dev": "nodemon --exec tsx src/server.ts",
+        "format:fix": "npx prettier . --write",
+        "format:check": "npx prettier . --check",
+        "lint:fix": "eslint . --fix",
+        "lint:check": "eslint .",
+        "prepare": "husky",
+        "test": "vitest run"
+    },
+    "type": "module",
+    "lint-staged": {
+        "*.ts": [
+            "npm run lint:fix",
+            "npm run format:fix"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/daniyalahmed21/Auth-Service.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/daniyalahmed21/Auth-Service/issues"
+    },
+    "homepage": "https://github.com/daniyalahmed21/Auth-Service#readme",
+    "description": "",
+    "devDependencies": {
+        "@eslint/js": "^9.39.2",
+        "@types/express": "^5.0.6",
+        "@types/node": "^25.2.0",
+        "@types/supertest": "^6.0.3",
+        "@types/winston": "^2.4.4",
+        "@vitest/ui": "^4.0.18",
+        "eslint": "^9.39.2",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.7",
+        "nodemon": "^3.1.11",
+        "prettier": "3.8.1",
+        "supertest": "^7.2.2",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.54.0",
+        "vitest": "^4.0.18"
+    },
+    "dependencies": {
+        "-": "^0.0.1",
+        "dotenv": "^17.2.3",
+        "express": "^5.2.1",
+        "http-errors": "^2.0.1",
+        "winston": "^3.19.0"
+    }
 }
