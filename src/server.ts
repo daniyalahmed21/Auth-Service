@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import { Config } from './config/index.js'
 import app from './app.js'
 import logger from './config/logger.js'
