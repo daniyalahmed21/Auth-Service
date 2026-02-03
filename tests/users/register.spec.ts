@@ -56,5 +56,16 @@ describe('POST /auth/register', () => {
             expect(users[0].firstName).toBe('Jane')
             expect(users[0].lastName).toBe('Smith')
         })
+
+        it('should return user id in the response', async () => {
+            const res = await request(app).post('/auth/register').send({
+                firstName: 'Alice',
+                lastName: 'Johnson',
+                email: 'alice.johnson@example.com',
+                password: '789',
+            })
+
+            expect(res.body.id).toBeDefined()
+        })
     })
 })

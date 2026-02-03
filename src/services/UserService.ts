@@ -8,5 +8,6 @@ export class UserService {
     async createUser(userData: UserData) {
         const user = this.userRepository.create(userData)
         await this.userRepository.save(user)
+        return user
     }
 }
