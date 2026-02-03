@@ -16,4 +16,7 @@ export class User {
 
     @Column('varchar')
     password: string
+
+    @Column('varchar', { default: 'customer' })
+    role: string
 }

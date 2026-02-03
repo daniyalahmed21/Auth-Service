@@ -67,5 +67,18 @@ describe('POST /auth/register', () => {
 
             expect(res.body.id).toBeDefined()
         })
+
+        it("should assign the role 'customer' to the new user", async () => {
+            await request(app).post('/auth/register').send({
+                firstName: 'Bob',
+                lastName: 'Brown',
+                email: 'bob.brown@example.com',
+                password: '012',
+            })
+            const user = await connection
+                .getRepository(User)
+                .findOne({ where: { email: 'bob.brown@example.com' } })
+            expect(user?.role).toBe('customer')
+        })
     })
 })
