@@ -32,4 +32,16 @@ export class UserService {
         await this.userRepository.save(user)
         return user
     }
+
+    async getUserByEmail(email: string): Promise<User | null> {
+        const user = await this.userRepository.findOne({ where: { email } })
+        return user || null
+    }
+
+    async comparePassword(
+        plainPassword: string,
+        hashedPassword: string
+    ): Promise<boolean> {
+        return bcrypt.compare(plainPassword, hashedPassword)
+    }
 }

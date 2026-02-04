@@ -5,6 +5,7 @@ import { UserService } from '../services/UserService.js'
 import { AppDataSource } from '../data-source.js'
 import logger from '../config/logger.js'
 import registerValidator from '../validators/registerValidator.js'
+import loginValidator from '../validators/loginValidator.js'
 
 const router = Router()
 
@@ -17,6 +18,13 @@ router.post(
     registerValidator,
     (req: Request, res: Response, next: NextFunction) =>
         authController.register(req, res, next)
+)
+
+router.post(
+    '/login',
+    loginValidator,
+    (req: Request, res: Response, next: NextFunction) =>
+        authController.login(req, res, next)
 )
 
 export default router

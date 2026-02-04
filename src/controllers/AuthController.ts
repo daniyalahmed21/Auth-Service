@@ -112,4 +112,77 @@ export class AuthController {
             return
         }
     }
+
+    async login(req: registerUserRequest, res: Response, next: NextFunction) {
+        const errors = validationResult(req)
+
+        if (!errors.isEmpty()) {
+            this.logger.error('Validation errors:', errors.array())
+            return res.status(400).json({ errors: errors.array() })
+        }
+
+        const { email, password } = req.body
+
+        try {
+            const user = await this.userService.getUserByEmail(email)
+            if (!user) {
+                this.logger.warn(`Invalid login attempt for email: ${email}`)
+                const error = createHttpError(401, 'Invalid email or password')
+                next(error)
+                return
+            }
+
+            const isPasswordValid = await this.userService.comparePassword(
+                password,
+                user.password
+            )
+
+            if (!isPasswordValid) {
+                this.logger.warn(`Invalid login attempt for email: ${email}`)
+                const error = createHttpError(401, 'Invalid email or password')
+                next(error)
+                return
+            }
+
+            const payload: JwtPayload = {
+                sub: String(user.id),
+                role: user.role,
+            }
+
+            let privateKey: Buffer
+
+            try {
+                const __filename = fileURLToPath(import.meta.url)
+                const __dirname = path.dirname(__filename)
+                privateKey = fs.readFileSync(
+                    path.resolve(__dirname, '../../certs/private.pem')
+                )
+            } catch (err) {
+                this.logger.error('Error reading private key:', err)
+                const error = createHttpError(500, 'Failed to read private key')
+                next(error)
+                return
+            }
+
+            const accessToken = jwt.sign(payload, privateKey, {
+                expiresIn: '1h',
+                algorithm: 'RS256',
+                issuer: 'auth-service',
+            })
+
+            res.cookie('access_token', accessToken, {
+                httpOnly: true,
+                sameSite: 'strict',
+                maxAge: 15 * 60 * 1000,
+            })
+
+            return res.status(200).json({
+                message: 'Login successful',
+                id: user.id,
+            })
+        } catch (error) {
+            next(error)
+            return
+        }
+    }
 }
