@@ -1,6 +1,7 @@
 import 'reflect-metadata'
 import { DataSource } from 'typeorm'
 import { Config } from './config/index.js'
+import { RefreshToken } from './entity/RefreshToken.js'
 import { User } from './entity/User.js'
 
 export const AppDataSource = new DataSource({
@@ -12,7 +13,7 @@ export const AppDataSource = new DataSource({
     database: Config.DB_NAME,
     synchronize: Config.NODE_ENV !== 'prod',
     logging: false,
-    entities: [User],
+    entities: [User, RefreshToken],
     migrations: [],
     subscribers: [],
 })

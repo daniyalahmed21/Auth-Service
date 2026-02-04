@@ -5,6 +5,7 @@ import { AppDataSource } from '../../src/data-source.js'
 import { User } from '../../src/entity/User.js'
 import { DataSource } from 'typeorm'
 import { extractToken, isJWT } from '../utils/index.js'
+import { RefreshToken } from '../../src/entity/RefreshToken.js'
 
 let connection: DataSource
 const plainPassword = 'mysecretpassword'
@@ -18,8 +19,7 @@ describe('POST /auth/register', () => {
     })
 
     beforeEach(async () => {
-        // truncate users table before each test
-        await connection.getRepository(User).clear()
+        await connection.synchronize(true)
     })
 
     afterAll(async () => {
@@ -139,9 +139,46 @@ describe('POST /auth/register', () => {
             expect(isJWT(extractToken(cookies[0]))).toBe(true)
             expect(isJWT(extractToken(cookies[1]))).toBe(true)
         })
+
+        it('should create exactly one refresh token for the registered user', async () => {
+            // register user
+            const response = await request(app).post('/auth/register').send({
+                firstName: 'Refresh',
+                lastName: 'Test',
+                email: 'refresh.test@example.com',
+                password: 'mysecretpassword',
+            })
+
+            expect(response.status).toBe(201)
+            expect(response.body.id).toBeDefined()
+
+            const userId = response.body.id
+
+            const connection = AppDataSource
+
+            // sanity check user exists
+            const user = await connection.getRepository(User).findOne({
+                where: { id: userId },
+            })
+
+            expect(user).toBeDefined()
+
+            // fetch refresh tokens linked to this user
+            const refreshTokenRepo = connection.getRepository(RefreshToken)
+
+            const tokens = await refreshTokenRepo
+                .createQueryBuilder('refreshToken')
+                .leftJoinAndSelect('refreshToken.user', 'user')
+                .where('user.id = :userId', { userId })
+                .getMany()
+
+            expect(tokens).toHaveLength(1)
+            expect(tokens[0].user.id).toBe(userId)
+            expect(tokens[0].expiresAt.getTime()).toBeGreaterThan(Date.now())
+        })
     })
 
-    describe.skip('when the request is invalid', () => {
+    describe('when the request is invalid', () => {
         it('should return 400 if email is missing', async () => {
             const res = await request(app).post('/auth/register').send({
                 firstName: 'David',

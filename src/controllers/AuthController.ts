@@ -10,6 +10,8 @@ import { validationResult } from 'express-validator'
 import createHttpError from 'http-errors'
 import { fileURLToPath } from 'url'
 import { Config } from '../config/index.js'
+import { AppDataSource } from '../data-source.js'
+import { RefreshToken } from '../entity/RefreshToken.js'
 
 export class AuthController {
     constructor(
@@ -69,6 +71,15 @@ export class AuthController {
                 issuer: 'auth-service',
             })
 
+            //persistent refresh token
+
+            const refreshTokenRepository =
+                AppDataSource.getRepository(RefreshToken)
+
+            const newRefreshToken = await refreshTokenRepository.save({
+                user: user,
+                expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            })
             const refreshToken = jwt.sign(
                 payload,
                 Config.REFRESH_TOKEN_SECRET,
@@ -76,6 +87,7 @@ export class AuthController {
                     expiresIn: '1d',
                     algorithm: 'HS256',
                     issuer: 'auth-service',
+                    jwtid: String(newRefreshToken.id),
                 }
             )
 
