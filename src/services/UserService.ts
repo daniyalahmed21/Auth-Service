@@ -33,9 +33,9 @@ export class UserService {
         return user
     }
 
-    async getUserByEmail(email: string): Promise<User | null> {
+    async getUserByEmail(email: string) {
         const user = await this.userRepository.findOne({ where: { email } })
-        return user || null
+        return user
     }
 
     async comparePassword(
@@ -43,5 +43,9 @@ export class UserService {
         hashedPassword: string
     ): Promise<boolean> {
         return bcrypt.compare(plainPassword, hashedPassword)
+    }
+
+    async getUserById(id: number) {
+        return await this.userRepository.findOne({ where: { id } })
     }
 }

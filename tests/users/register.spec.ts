@@ -101,13 +101,13 @@ describe('POST /auth/register', () => {
             const userData = {
                 firstName: 'Eve',
                 lastName: 'White',
-                email: 'charlie.davis@example.com',
+                email: 'eve.white@example.com',
                 password: plainPassword,
             }
             await request(app).post('/auth/register').send(userData)
             const res = await request(app).post('/auth/register').send(userData)
             expect(res.status).toBe(400)
-            expect(res.body.error[0].message).toBe('Email already registered')
+            expect(res.body.errors[0].msg).toBe('Email already registered')
         })
 
         it('should trim whitespace from email', async () => {
@@ -119,9 +119,9 @@ describe('POST /auth/register', () => {
             })
 
             const users = await connection.getRepository(User).find()
-            const user = users[0]
+            const user = users.find((u) => u.email === 'zoe.adams@example.com')
             expect(user).toBeDefined()
-            expect(user.email).toBe('zoe.adams@example.com')
+            expect(user!.email).toBe('zoe.adams@example.com')
         })
 
         it('should have cookies set in the response', async () => {
@@ -186,7 +186,7 @@ describe('POST /auth/register', () => {
                 password: plainPassword,
             })
             expect(res.status).toBe(400)
-            expect(res.body.errors[0].msg).toBe('Email is required')
+            expect(res.body.errors[0].details[0].msg).toBe('Email is required')
         })
 
         it('should return 400 if email is not valid', async () => {
@@ -197,7 +197,7 @@ describe('POST /auth/register', () => {
                 password: plainPassword,
             })
             expect(res.status).toBe(400)
-            expect(res.body.errors[0].msg).toBe('Email is not valid')
+            expect(res.body.errors[0].details[0].msg).toBe('Email is not valid')
         })
 
         it('should return 400 if password is missing', async () => {
@@ -207,7 +207,9 @@ describe('POST /auth/register', () => {
                 email: 'frank.yellow@example.com',
             })
             expect(res.status).toBe(400)
-            expect(res.body.errors[0].msg).toBe('Password is required')
+            expect(res.body.errors[0].details[0].msg).toBe(
+                'Password is required'
+            )
         })
 
         it('should return 400 if password is too short', async () => {
@@ -218,7 +220,7 @@ describe('POST /auth/register', () => {
                 password: '123',
             })
             expect(res.status).toBe(400)
-            expect(res.body.errors[0].msg).toBe(
+            expect(res.body.errors[0].details[0].msg).toBe(
                 'Password must be at least 6 characters long'
             )
         })
@@ -230,7 +232,9 @@ describe('POST /auth/register', () => {
                 password: plainPassword,
             })
             expect(res.status).toBe(400)
-            expect(res.body.errors[0].msg).toBe('First name is required')
+            expect(res.body.errors[0].details[0].msg).toBe(
+                'First name is required'
+            )
         })
 
         it('should return 400 if last name is missing', async () => {
@@ -240,7 +244,9 @@ describe('POST /auth/register', () => {
                 password: plainPassword,
             })
             expect(res.status).toBe(400)
-            expect(res.body.errors[0].msg).toBe('Last name is required')
+            expect(res.body.errors[0].details[0].msg).toBe(
+                'Last name is required'
+            )
         })
     })
 })

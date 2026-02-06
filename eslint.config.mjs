@@ -25,6 +25,7 @@ export default defineConfig(
             'jest.config.js',
             'tests',
             'scripts',
+            "vitest.config.ts"
         ],
     }
 )

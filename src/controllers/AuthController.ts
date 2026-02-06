@@ -1,21 +1,16 @@
-import path from 'path'
-import fs from 'fs'
-import jwt, { type JwtPayload } from 'jsonwebtoken'
 import type { NextFunction, Response } from 'express'
-import type { registerUserRequest } from '../types/index.js'
+import type { AuthRequest, registerUserRequest } from '../types/index.js'
 import type { UserService } from '../services/UserService.js'
+import type { TokenService } from '../services/TokenService.js'
 import type { Logger } from 'winston'
 import { ROLES } from '../constants/index.js'
-import { validationResult } from 'express-validator'
 import createHttpError from 'http-errors'
-import { fileURLToPath } from 'url'
-import { Config } from '../config/index.js'
-import { AppDataSource } from '../data-source.js'
-import { RefreshToken } from '../entity/RefreshToken.js'
+import type { JwtPayload } from 'jsonwebtoken'
 
 export class AuthController {
     constructor(
         private userService: UserService,
+        private tokenService: TokenService,
         private logger: Logger
     ) {}
 
@@ -24,13 +19,6 @@ export class AuthController {
         res: Response,
         next: NextFunction
     ) {
-        const errors = validationResult(req)
-
-        if (!errors.isEmpty()) {
-            this.logger.error('Validation errors:', errors.array())
-            return res.status(400).json({ errors: errors.array() })
-        }
-
         const { firstName, lastName, email, password } = req.body
 
         this.logger.debug(`Registering user with email: ${email}`)
@@ -50,45 +38,14 @@ export class AuthController {
                 role: user.role,
             }
 
-            let privateKey: Buffer
+            const accessToken = this.tokenService.generateAccessToken(payload)
 
-            try {
-                const __filename = fileURLToPath(import.meta.url)
-                const __dirname = path.dirname(__filename)
-                privateKey = fs.readFileSync(
-                    path.resolve(__dirname, '../../certs/private.pem')
-                )
-            } catch (err) {
-                this.logger.error('Error reading private key:', err)
-                const error = createHttpError(500, 'Failed to read private key')
-                next(error)
-                return
-            }
+            const newRefreshToken =
+                await this.tokenService.persistRefreshToken(user)
 
-            const accessToken = jwt.sign(payload, privateKey, {
-                expiresIn: '1h',
-                algorithm: 'RS256',
-                issuer: 'auth-service',
-            })
-
-            //persistent refresh token
-
-            const refreshTokenRepository =
-                AppDataSource.getRepository(RefreshToken)
-
-            const newRefreshToken = await refreshTokenRepository.save({
-                user: user,
-                expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-            })
-            const refreshToken = jwt.sign(
+            const refreshToken = this.tokenService.generateRefreshToken(
                 payload,
-                Config.REFRESH_TOKEN_SECRET,
-                {
-                    expiresIn: '1d',
-                    algorithm: 'HS256',
-                    issuer: 'auth-service',
-                    jwtid: String(newRefreshToken.id),
-                }
+                String(newRefreshToken.id)
             )
 
             res.cookie('access_token', accessToken, {
@@ -114,13 +71,6 @@ export class AuthController {
     }
 
     async login(req: registerUserRequest, res: Response, next: NextFunction) {
-        const errors = validationResult(req)
-
-        if (!errors.isEmpty()) {
-            this.logger.error('Validation errors:', errors.array())
-            return res.status(400).json({ errors: errors.array() })
-        }
-
         const { email, password } = req.body
 
         try {
@@ -128,8 +78,7 @@ export class AuthController {
             if (!user) {
                 this.logger.warn(`Invalid login attempt for email: ${email}`)
                 const error = createHttpError(401, 'Invalid email or password')
-                next(error)
-                return
+                throw error
             }
 
             const isPasswordValid = await this.userService.comparePassword(
@@ -140,8 +89,7 @@ export class AuthController {
             if (!isPasswordValid) {
                 this.logger.warn(`Invalid login attempt for email: ${email}`)
                 const error = createHttpError(401, 'Invalid email or password')
-                next(error)
-                return
+                throw error
             }
 
             const payload: JwtPayload = {
@@ -149,31 +97,26 @@ export class AuthController {
                 role: user.role,
             }
 
-            let privateKey: Buffer
+            const accessToken = this.tokenService.generateAccessToken(payload)
 
-            try {
-                const __filename = fileURLToPath(import.meta.url)
-                const __dirname = path.dirname(__filename)
-                privateKey = fs.readFileSync(
-                    path.resolve(__dirname, '../../certs/private.pem')
-                )
-            } catch (err) {
-                this.logger.error('Error reading private key:', err)
-                const error = createHttpError(500, 'Failed to read private key')
-                next(error)
-                return
-            }
+            const newRefreshToken =
+                await this.tokenService.persistRefreshToken(user)
 
-            const accessToken = jwt.sign(payload, privateKey, {
-                expiresIn: '1h',
-                algorithm: 'RS256',
-                issuer: 'auth-service',
-            })
+            const refreshToken = this.tokenService.generateRefreshToken(
+                payload,
+                String(newRefreshToken.id)
+            )
 
             res.cookie('access_token', accessToken, {
                 httpOnly: true,
                 sameSite: 'strict',
                 maxAge: 15 * 60 * 1000,
+            })
+
+            res.cookie('refresh_token', refreshToken, {
+                httpOnly: true,
+                sameSite: 'strict',
+                maxAge: 24 * 60 * 60 * 1000,
             })
 
             return res.status(200).json({
@@ -184,5 +127,13 @@ export class AuthController {
             next(error)
             return
         }
+    }
+
+    async getSelf(req: AuthRequest, res: Response) {
+        const { sub } = req.Auth
+
+        const user = await this.userService.getUserById(Number(sub))
+
+        return res.status(200).json(user)
     }
 }
