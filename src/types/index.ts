@@ -18,6 +18,7 @@ export interface AuthRequest extends Request {
     auth: {
         sub: string
         role: Role
+        jti?: string
     }
 }
 

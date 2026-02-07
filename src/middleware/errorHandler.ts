@@ -7,6 +7,7 @@ interface AppError extends HttpError {
     errors?: unknown
 }
 
+/** Central error handler; sends JSON error array and logs 5xx. */
 export const globalErrorHandler = (
     err: AppError,
     req: Request,

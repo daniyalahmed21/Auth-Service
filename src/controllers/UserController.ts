@@ -6,8 +6,8 @@ import type {
     UserQueryParams,
 } from '../types/index.js'
 import createHttpError from 'http-errors'
-import { Logger } from 'winston'
-import { matchedData, validationResult } from 'express-validator'
+import type { Logger } from 'winston'
+import { matchedData } from 'express-validator'
 
 export class UserController {
     constructor(
@@ -16,13 +16,6 @@ export class UserController {
     ) {}
 
     async create(req: CreateUserRequest, res: Response, next: NextFunction) {
-        // Validation
-        const result = validationResult(req)
-        if (!result.isEmpty()) {
-            const error = result.array()[0]
-            return next(createHttpError(400, error?.msg as string))
-        }
-
         const { firstName, lastName, email, password, tenantId, role } =
             req.body
         try {
@@ -41,15 +34,6 @@ export class UserController {
     }
 
     async update(req: UpdateUserRequest, res: Response, next: NextFunction) {
-        // In our project: We are not allowing user to change the email id since it is used as username
-        // In our project: We are not allowing admin user to change others password
-
-        // Validation
-        const result = validationResult(req)
-        if (!result.isEmpty()) {
-            return res.status(400).json({ errors: result.array() })
-        }
-
         const { firstName, lastName, role, email, tenantId } = req.body
         const userId = req.params.id
 

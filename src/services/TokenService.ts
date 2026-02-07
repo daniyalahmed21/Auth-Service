@@ -4,48 +4,59 @@ import jwt, { type JwtPayload } from 'jsonwebtoken'
 import { fileURLToPath } from 'url'
 import createHttpError from 'http-errors'
 import { Config } from '../config/index.js'
+import { TOKEN_ISSUER } from '../constants/index.js'
+import logger from '../config/logger.js'
 import type { User } from '../entity/User.js'
 import { RefreshToken } from '../entity/RefreshToken.js'
 import { AppDataSource } from '../config/data-source.js'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const PRIVATE_KEY_PATH = path.resolve(__dirname, '../../certs/private.pem')
+
+function loadPrivateKey(): Buffer {
+    try {
+        return fs.readFileSync(PRIVATE_KEY_PATH)
+    } catch (err) {
+        logger.error('Failed to read private key', {
+            path: PRIVATE_KEY_PATH,
+            err,
+        })
+        throw createHttpError(500, 'Failed to read private key')
+    }
+}
+
 export class TokenService {
+    private privateKey: Buffer | null = null
+
     constructor(
         private refreshTokenRepository = AppDataSource.getRepository(
             RefreshToken
         )
     ) {}
 
-    generateAccessToken(payload: JwtPayload): string {
-        let privateKey: Buffer
-        try {
-            const __filename = fileURLToPath(import.meta.url)
-            const __dirname = path.dirname(__filename)
-            privateKey = fs.readFileSync(
-                path.resolve(__dirname, '../../certs/private.pem')
-            )
-        } catch (err) {
-            console.error(err)
-            const error = createHttpError(500, 'Failed to read private key')
-            throw error
+    private getPrivateKey(): Buffer {
+        if (!this.privateKey) {
+            this.privateKey = loadPrivateKey()
         }
+        return this.privateKey
+    }
 
-        const accessToken = jwt.sign(payload, privateKey, {
+    generateAccessToken(payload: JwtPayload): string {
+        return jwt.sign(payload, this.getPrivateKey(), {
             expiresIn: '1h',
             algorithm: 'RS256',
-            issuer: 'auth-service',
+            issuer: TOKEN_ISSUER,
         })
-
-        return accessToken
     }
 
     generateRefreshToken(payload: JwtPayload, jwtId: string): string {
-        const refreshToken = jwt.sign(payload, Config.REFRESH_TOKEN_SECRET, {
+        return jwt.sign(payload, Config.REFRESH_TOKEN_SECRET, {
             expiresIn: '1d',
             algorithm: 'HS256',
-            issuer: 'auth-service',
+            issuer: TOKEN_ISSUER,
             jwtid: jwtId,
         })
-        return refreshToken
     }
 
     async persistRefreshToken(user: User): Promise<RefreshToken> {

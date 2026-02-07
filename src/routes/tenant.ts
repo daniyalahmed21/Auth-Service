@@ -15,7 +15,8 @@ import { ROLES } from '../constants/index.js'
 import { authenticate } from '../middleware/authenticate.js'
 import { canAccess } from '../middleware/canAccess.js'
 import tenantValidator from '../validators/tenantValidator.js'
-import listUserValidator from '../validators/listUserValidator.js'
+import listTenantValidator from '../validators/listTenantValidator.js'
+import { validateRequest } from '../middleware/validateRequest.js'
 
 const router = express.Router()
 
@@ -28,6 +29,7 @@ router.post(
     authenticate,
     canAccess([ROLES.ADMIN]),
     tenantValidator,
+    validateRequest,
     (req: createTenantRequest, res: Response, next: NextFunction) =>
         tenantController.create(req, res, next) as unknown as RequestHandler
 )
@@ -37,12 +39,15 @@ router.patch(
     authenticate,
     canAccess([ROLES.ADMIN]),
     tenantValidator,
+    validateRequest,
     (req: createTenantRequest, res: Response, next: NextFunction) =>
         tenantController.update(req, res, next) as unknown as RequestHandler
 )
+
 router.get(
     '/',
-    listUserValidator,
+    listTenantValidator,
+    validateRequest,
     (req: Request, res: Response, next: NextFunction) =>
         tenantController.getAll(req, res, next) as unknown as RequestHandler
 )

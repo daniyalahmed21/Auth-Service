@@ -3,7 +3,7 @@ import type { AuthRequest, registerUserRequest } from '../types/index.js'
 import type { UserService } from '../services/UserService.js'
 import type { TokenService } from '../services/TokenService.js'
 import type { Logger } from 'winston'
-import { ROLES } from '../constants/index.js'
+import { ROLES, COOKIE_OPTIONS } from '../constants/index.js'
 import createHttpError from 'http-errors'
 import type { JwtPayload } from 'jsonwebtoken'
 
@@ -49,15 +49,12 @@ export class AuthController {
             )
 
             res.cookie('access_token', accessToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 15 * 60 * 1000,
+                ...COOKIE_OPTIONS,
+                maxAge: COOKIE_OPTIONS.accessTokenMaxAge,
             })
-
             res.cookie('refresh_token', refreshToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 24 * 60 * 60 * 1000,
+                ...COOKIE_OPTIONS,
+                maxAge: COOKIE_OPTIONS.refreshTokenMaxAge,
             })
 
             return res.status(201).json({
@@ -108,15 +105,12 @@ export class AuthController {
             )
 
             res.cookie('access_token', accessToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 15 * 60 * 1000,
+                ...COOKIE_OPTIONS,
+                maxAge: COOKIE_OPTIONS.accessTokenMaxAge,
             })
-
             res.cookie('refresh_token', refreshToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 24 * 60 * 60 * 1000,
+                ...COOKIE_OPTIONS,
+                maxAge: COOKIE_OPTIONS.refreshTokenMaxAge,
             })
 
             return res.status(200).json({
@@ -171,7 +165,10 @@ export class AuthController {
 
             const accessToken = this.tokenService.generateAccessToken(payload)
 
-            await this.tokenService.deleteRefreshToken(String(user.id))
+            const tokenId = req.auth.jti
+            if (tokenId) {
+                await this.tokenService.deleteRefreshToken(tokenId)
+            }
             const newRefreshToken =
                 await this.tokenService.persistRefreshToken(user)
             const refreshToken = this.tokenService.generateRefreshToken(
@@ -180,15 +177,12 @@ export class AuthController {
             )
 
             res.cookie('access_token', accessToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 15 * 60 * 1000,
+                ...COOKIE_OPTIONS,
+                maxAge: COOKIE_OPTIONS.accessTokenMaxAge,
             })
-
             res.cookie('refresh_token', refreshToken, {
-                httpOnly: true,
-                sameSite: 'strict',
-                maxAge: 24 * 60 * 60 * 1000,
+                ...COOKIE_OPTIONS,
+                maxAge: COOKIE_OPTIONS.refreshTokenMaxAge,
             })
 
             return res.status(200).json({ id: user.id })
@@ -200,9 +194,10 @@ export class AuthController {
 
     async logout(req: AuthRequest, res: Response, next: NextFunction) {
         try {
-            const { sub } = req.auth
-
-            await this.tokenService.deleteRefreshToken(String(sub))
+            const tokenId = req.auth.jti
+            if (tokenId) {
+                await this.tokenService.deleteRefreshToken(tokenId)
+            }
 
             res.clearCookie('access_token')
             res.clearCookie('refresh_token')

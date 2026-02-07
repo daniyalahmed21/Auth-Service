@@ -9,12 +9,11 @@ import { authenticate } from '../middleware/authenticate.js'
 import { canAccess } from '../middleware/canAccess.js'
 import { ROLES } from '../constants/index.js'
 import createUserValidator from '../validators/createUserValidator.js'
-import type { CreateUserRequest } from '../types/index.js'
-import type { UpdateUserRequest } from '../types/index.js'
+import type { CreateUserRequest, UpdateUserRequest } from '../types/index.js'
 import updateUserValidator from '../validators/updateUserValidator.js'
 import listUserValidator from '../validators/listUserValidator.js'
-import type { Request } from 'express'
-import type { Response } from 'express'
+import { validateRequest } from '../middleware/validateRequest.js'
+import type { Request, Response } from 'express'
 
 const router = express.Router()
 
@@ -27,6 +26,7 @@ router.post(
     authenticate,
     canAccess([ROLES.ADMIN]),
     createUserValidator,
+    validateRequest,
     (req: CreateUserRequest, res: Response, next: NextFunction) =>
         userController.create(req, res, next) as unknown as RequestHandler
 )
@@ -36,6 +36,7 @@ router.patch(
     authenticate,
     canAccess([ROLES.ADMIN]),
     updateUserValidator,
+    validateRequest,
     (req: UpdateUserRequest, res: Response, next: NextFunction) =>
         userController.update(req, res, next) as unknown as RequestHandler
 )
@@ -45,6 +46,7 @@ router.get(
     authenticate,
     canAccess([ROLES.ADMIN]),
     listUserValidator,
+    validateRequest,
     (req: Request, res: Response, next: NextFunction) =>
         userController.getAll(req, res, next) as unknown as RequestHandler
 )

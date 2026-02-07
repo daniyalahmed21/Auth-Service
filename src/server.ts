@@ -1,10 +1,13 @@
+/**
+ * Entry point: initializes TypeORM, then starts the HTTP server.
+ */
 import 'reflect-metadata'
 import { Config } from './config/index.js'
 import app from './app.js'
 import logger from './config/logger.js'
 import { AppDataSource } from './config/data-source.js'
 
-async function startServer() {
+async function startServer(): Promise<void> {
     const PORT = Config.PORT || 3000
     try {
         await AppDataSource.initialize()

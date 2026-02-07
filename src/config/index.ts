@@ -1,3 +1,7 @@
+/**
+ * Loads env from .env.${NODE_ENV} and exports validated config.
+ * Throws on missing required vars.
+ */
 import { config } from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'

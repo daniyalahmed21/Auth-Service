@@ -27,21 +27,19 @@ export const validateRefreshToken: RequestHandler = expressjwt({
 
     async isRevoked(req: Request, token): Promise<boolean> {
         try {
-            if (!token || !token.payload) return true
+            if (!token?.payload) return true
 
-            const payload = token.payload as {
-                tokenId: number
-                sub: string
-            }
+            const payload = token.payload as { jti?: string; sub?: string }
+            const tokenId = payload.jti
+            const userId = payload.sub
+
+            if (!tokenId || !userId) return true
 
             const tokenRepo = AppDataSource.getRepository(RefreshToken)
-
             const refreshToken = await tokenRepo.findOne({
                 where: {
-                    id: payload.tokenId,
-                    user: {
-                        id: Number(payload.sub),
-                    },
+                    id: Number(tokenId),
+                    user: { id: Number(userId) },
                 },
             })
 
