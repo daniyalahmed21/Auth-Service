@@ -127,3 +127,4 @@ Terminates the user session.
   "exp": 1707396400
 }
 ```
+![alt text](auth-service.svg)
