@@ -1,27 +1,30 @@
-import type { NextFunction, Request, Response } from 'express'
 import { validationResult, type FieldValidationError } from 'express-validator'
-import createHttpError from 'http-errors'
+import type { Request, Response, NextFunction } from 'express'
 
 export const validateRequest = (
     req: Request,
-    _res: Response,
+    res: Response,
     next: NextFunction
 ) => {
-    const result = validationResult(req)
+    const errors = validationResult(req)
 
-    if (!result.isEmpty()) {
-        const errorArray = result
-            .array()
-            .filter((err): err is FieldValidationError => err.type === 'field')
-            .map((err) => ({
-                msg: String(err.msg),
-                param: err.path,
-            }))
-
-        const error = createHttpError(400, 'Validation Error')
-        error.errors = errorArray
-
-        return next(error)
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            errors: [
+                {
+                    details: errors
+                        .array()
+                        .filter(
+                            (err): err is FieldValidationError =>
+                                err.type === 'field'
+                        )
+                        .map((err) => ({
+                            msg: String(err.msg),
+                            param: String(err.path),
+                        })),
+                },
+            ],
+        })
     }
 
     next()

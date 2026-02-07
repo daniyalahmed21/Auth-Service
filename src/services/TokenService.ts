@@ -6,7 +6,7 @@ import createHttpError from 'http-errors'
 import { Config } from '../config/index.js'
 import type { User } from '../entity/User.js'
 import { RefreshToken } from '../entity/RefreshToken.js'
-import { AppDataSource } from '../data-source.js'
+import { AppDataSource } from '../config/data-source.js'
 
 export class TokenService {
     constructor(

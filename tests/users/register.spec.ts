@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from 'vitest'
 import request from 'supertest'
 import app from '../../src/app.js'
-import { AppDataSource } from '../../src/data-source.js'
+import { AppDataSource } from '../../src/config/data-source.js'
 import { User } from '../../src/entity/User.js'
 import { DataSource } from 'typeorm'
 import { extractToken, isJWT } from '../utils/index.js'

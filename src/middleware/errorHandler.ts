@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 import type { HttpError } from 'http-errors'
 import logger from '../config/logger.js'
 
@@ -10,9 +10,11 @@ interface AppError extends HttpError {
 export const globalErrorHandler = (
     err: AppError,
     req: Request,
-    res: Response
+    res: Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    next: NextFunction
 ) => {
-    const statusCode = err.statusCode ?? 500
+    const statusCode = err.statusCode || err.status || 500
     const isProduction = process.env.NODE_ENV === 'production'
 
     if (statusCode === 500) {

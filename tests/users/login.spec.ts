@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm'
 import request from 'supertest'
-import { AppDataSource } from '../../src/data-source.js'
+import { AppDataSource } from '../../src/config/data-source.js'
 import app from '../../src/app.js'
 import { User } from '../../src/entity/User.js'
 import { ROLES } from '../../src/constants/index.js'

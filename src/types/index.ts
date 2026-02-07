@@ -14,7 +14,7 @@ export interface registerUserRequest extends Request {
 }
 
 export interface AuthRequest extends Request {
-    Auth: {
+    auth: {
         sub: string
         role: Role
     }

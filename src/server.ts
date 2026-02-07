@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import { Config } from './config/index.js'
 import app from './app.js'
 import logger from './config/logger.js'
-import { AppDataSource } from './data-source.js'
+import { AppDataSource } from './config/data-source.js'
 
 async function startServer() {
     const PORT = Config.PORT || 3000

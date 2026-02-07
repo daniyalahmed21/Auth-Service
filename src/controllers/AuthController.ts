@@ -129,11 +129,16 @@ export class AuthController {
         }
     }
 
-    async getSelf(req: AuthRequest, res: Response) {
-        const { sub } = req.Auth
+    async getSelf(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { sub } = req.auth
 
-        const user = await this.userService.getUserById(Number(sub))
+            const user = await this.userService.getUserById(Number(sub))
 
-        return res.status(200).json(user)
+            return res.status(200).json({ ...user, password: undefined })
+        } catch (error) {
+            next(error)
+            return
+        }
     }
 }
