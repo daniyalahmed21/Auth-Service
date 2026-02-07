@@ -11,6 +11,7 @@ import { authenticate } from '../middleware/authenticate.js'
 import type { AuthRequest } from '../types/index.js'
 import { AppDataSource } from '../config/data-source.js'
 import { validateRefreshToken } from '../middleware/validateRefreshToken.js'
+import { parseRefreshToken } from '../middleware/parseRefreshToken.js'
 
 const router = Router()
 
@@ -51,7 +52,8 @@ router.post(
 
 router.post(
     '/logout',
-    validateRefreshToken,
+    authenticate,
+    parseRefreshToken,
     (req: Request, res: Response, next: NextFunction) =>
         authController.logout(req as AuthRequest, res, next)
 )
