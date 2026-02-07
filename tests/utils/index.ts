@@ -1,3 +1,6 @@
+import { Repository } from 'typeorm'
+import { Tenant } from '../../src/entity/Tenant'
+
 export const isJWT = (token: string): boolean => {
     const parts = token.split('.')
     if (parts.length !== 3) return false
@@ -13,3 +16,11 @@ export const isJWT = (token: string): boolean => {
 
 export const extractToken = (cookie: string) =>
     cookie.split(';')[0].split('=')[1]
+
+export const createTenant = async (repository: Repository<Tenant>) => {
+    const tenant = await repository.save({
+        name: 'Test tenant',
+        address: 'Test address',
+    })
+    return tenant
+}

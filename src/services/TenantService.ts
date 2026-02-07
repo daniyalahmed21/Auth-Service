@@ -1,16 +1,42 @@
-import { AppDataSource } from '../config/data-source.js'
-import { Tenant } from '../entity/Tenant.js'
-import type { TenantData } from '../types/index.js'
+import { Repository } from 'typeorm'
+import type { Tenant } from '../entity/Tenant.js'
+import type { ITenant, TenantQueryParams } from '../types/index.js'
 
 export class TenantService {
-    constructor(
-        private tenantRepository = AppDataSource.getRepository(Tenant)
-    ) {}
+    constructor(private tenantRepository: Repository<Tenant>) {}
 
-    async createTenant(tenantData: TenantData) {
-        return await this.tenantRepository.save({
-            name: tenantData.name,
-            address: tenantData.address,
-        })
+    async create(tenantData: ITenant) {
+        return await this.tenantRepository.save(tenantData)
+    }
+
+    async update(id: number, tenantData: ITenant) {
+        return await this.tenantRepository.update(id, tenantData)
+    }
+
+    async getAll(validatedQuery: TenantQueryParams) {
+        const queryBuilder = this.tenantRepository.createQueryBuilder('tenant')
+
+        if (validatedQuery.q) {
+            const searchTerm = `%${validatedQuery.q}%`
+            queryBuilder.where(
+                "CONCAT(tenant.name, ' ', tenant.address) ILike :q",
+                { q: searchTerm }
+            )
+        }
+
+        const result = await queryBuilder
+            .skip((validatedQuery.currentPage - 1) * validatedQuery.perPage)
+            .take(validatedQuery.perPage)
+            .orderBy('tenant.id', 'DESC')
+            .getManyAndCount()
+        return result
+    }
+
+    async getById(tenantId: number) {
+        return await this.tenantRepository.findOne({ where: { id: tenantId } })
+    }
+
+    async deleteById(tenantId: number) {
+        return await this.tenantRepository.delete(tenantId)
     }
 }

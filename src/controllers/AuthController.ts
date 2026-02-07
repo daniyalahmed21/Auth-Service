@@ -24,7 +24,7 @@ export class AuthController {
         this.logger.debug(`Registering user with email: ${email}`)
 
         try {
-            const user = await this.userService.createUser({
+            const user = await this.userService.create({
                 firstName,
                 lastName,
                 email,
@@ -74,7 +74,7 @@ export class AuthController {
         const { email, password } = req.body
 
         try {
-            const user = await this.userService.getUserByEmail(email)
+            const user = await this.userService.findByEmail(email)
             if (!user) {
                 this.logger.warn(`Invalid login attempt for email: ${email}`)
                 const error = createHttpError(401, 'Invalid email or password')
@@ -133,7 +133,7 @@ export class AuthController {
         try {
             const { sub } = req.auth
 
-            const user = await this.userService.getUserById(Number(sub))
+            const user = await this.userService.findById(Number(sub))
 
             if (!user) {
                 return next(createHttpError(404, 'User not found'))
@@ -156,7 +156,7 @@ export class AuthController {
         try {
             const { sub } = req.auth
 
-            const user = await this.userService.getUserById(Number(sub))
+            const user = await this.userService.findById(Number(sub))
 
             if (!user) {
                 const error = createHttpError(401, 'User not found')
