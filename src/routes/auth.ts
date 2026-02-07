@@ -10,6 +10,7 @@ import loginValidator from '../validators/loginValidator.js'
 import { authenticate } from '../middleware/authenticate.js'
 import type { AuthRequest } from '../types/index.js'
 import { AppDataSource } from '../config/data-source.js'
+import { validateRefreshToken } from '../middleware/validateRefreshToken.js'
 
 const router = Router()
 
@@ -39,6 +40,20 @@ router.get(
     authenticate,
     (req: Request, res: Response, next: NextFunction) =>
         authController.getSelf(req as AuthRequest, res, next)
+)
+
+router.post(
+    '/refresh',
+    validateRefreshToken,
+    (req: Request, res: Response, next: NextFunction) =>
+        authController.refresh(req as AuthRequest, res, next)
+)
+
+router.post(
+    '/logout',
+    validateRefreshToken,
+    (req: Request, res: Response, next: NextFunction) =>
+        authController.logout(req as AuthRequest, res, next)
 )
 
 export default router

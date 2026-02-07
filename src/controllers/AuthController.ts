@@ -141,4 +141,66 @@ export class AuthController {
             return
         }
     }
+
+    async refresh(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { sub } = req.auth
+
+            const user = await this.userService.getUserById(Number(sub))
+
+            if (!user) {
+                const error = createHttpError(401, 'User not found')
+                next(error)
+                return
+            }
+
+            const payload: JwtPayload = {
+                sub: req.auth.sub,
+                role: req.auth.role,
+            }
+
+            const accessToken = this.tokenService.generateAccessToken(payload)
+
+            await this.tokenService.deleteRefreshToken(String(user.id))
+            const newRefreshToken =
+                await this.tokenService.persistRefreshToken(user)
+            const refreshToken = this.tokenService.generateRefreshToken(
+                payload,
+                String(newRefreshToken.id)
+            )
+
+            res.cookie('access_token', accessToken, {
+                httpOnly: true,
+                sameSite: 'strict',
+                maxAge: 15 * 60 * 1000,
+            })
+
+            res.cookie('refresh_token', refreshToken, {
+                httpOnly: true,
+                sameSite: 'strict',
+                maxAge: 24 * 60 * 60 * 1000,
+            })
+
+            return res.status(200).json({ id: user.id })
+        } catch (error) {
+            next(error)
+            return
+        }
+    }
+
+    async logout(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const { sub } = req.auth
+
+            await this.tokenService.deleteRefreshToken(String(sub))
+
+            res.clearCookie('access_token')
+            res.clearCookie('refresh_token')
+
+            return res.status(200).json({ message: 'Logout successful' })
+        } catch (error) {
+            next(error)
+            return
+        }
+    }
 }
