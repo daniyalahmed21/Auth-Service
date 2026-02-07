@@ -9,7 +9,11 @@
         "lint:fix": "eslint . --fix",
         "lint:check": "eslint .",
         "prepare": "husky",
-        "test": "vitest run"
+        "test": "vitest run",
+        "typeorm": "cross-env NODE_ENV=dev tsx ./node_modules/typeorm/cli.js",
+        "migration:generate": "cross-env NODE_ENV=dev tsx ./node_modules/typeorm/cli.js migration:generate -d src/config/data-source.ts",
+        "migration:run": "cross-env NODE_ENV=dev tsx ./node_modules/typeorm/cli.js migration:run -d src/config/data-source.ts",
+        "migration:revert": "cross-env NODE_ENV=dev tsx ./node_modules/typeorm/cli.js migration:revert -d src/config/data-source.ts"
     },
     "type": "module",
     "lint-staged": {
