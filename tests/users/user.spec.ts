@@ -36,18 +36,29 @@ describe('GET /auth/self', () => {
     })
 
     afterAll(async () => {
-        await connection.destroy()
+        if (connection && connection.isInitialized) {
+            await connection.destroy()
+        }
     })
 
     describe('Given all fields', () => {
         it('should return the 200 status code', async () => {
-            const accessToken = jwks.token({
-                sub: '1',
+            const userRepository = connection.getRepository(User)
+            const user = await userRepository.save({
+                firstName: 'Test',
+                lastName: 'User',
+                email: 'test@example.com',
+                password: 'password',
                 role: ROLES.CUSTOMER,
+            })
+
+            const accessToken = jwks.token({
+                sub: String(user.id),
+                role: user.role,
             })
             const response = await request(app)
                 .get('/auth/self')
-                .set('Cookie', [`accessToken=${accessToken}`])
+                .set('Cookie', [`access_token=${accessToken}`])
                 .send()
             expect(response.statusCode).toBe(200)
         })
@@ -74,11 +85,13 @@ describe('GET /auth/self', () => {
             // Add token to cookie
             const response = await request(app)
                 .get('/auth/self')
-                .set('Cookie', [`accessToken=${accessToken};`])
+                .set('Cookie', [`access_token=${accessToken};`])
                 .send()
             // Assert
             // Check if user id matches with registered user
-            expect((response.body as Record<string, string>).id).toBe(data.id)
+            expect(Number((response.body as Record<string, string>).id)).toBe(
+                data.id
+            )
         })
 
         it('should not return the password field', async () => {
@@ -103,7 +116,7 @@ describe('GET /auth/self', () => {
             // Add token to cookie
             const response = await request(app)
                 .get('/auth/self')
-                .set('Cookie', [`accessToken=${accessToken};`])
+                .set('Cookie', [`access_token=${accessToken};`])
                 .send()
             // Assert
             // Check if user id matches with registered user

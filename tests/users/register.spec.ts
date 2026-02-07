@@ -23,7 +23,7 @@ describe('POST /auth/register', () => {
     })
 
     afterAll(async () => {
-        if (connection.isInitialized) {
+        if (connection && connection.isInitialized) {
             await connection.destroy()
         }
     })

@@ -19,3 +19,12 @@ export interface AuthRequest extends Request {
         role: Role
     }
 }
+
+export interface TenantData {
+    name: string
+    address: string
+}
+
+export interface createTenantRequest extends Request {
+    body: TenantData
+}

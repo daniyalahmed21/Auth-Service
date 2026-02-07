@@ -135,7 +135,17 @@ export class AuthController {
 
             const user = await this.userService.getUserById(Number(sub))
 
-            return res.status(200).json({ ...user, password: undefined })
+            if (!user) {
+                return next(createHttpError(404, 'User not found'))
+            }
+
+            return res.status(200).json({
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role,
+            })
         } catch (error) {
             next(error)
             return
