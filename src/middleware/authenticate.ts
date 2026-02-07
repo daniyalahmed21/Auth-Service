@@ -4,7 +4,7 @@ import { Config } from '../config/index.js'
 import type { RequestHandler } from 'express'
 
 interface AuthToken {
-    accessToken: string
+    access_token: string
 }
 
 const jwksSecret = jwksRsa.expressJwtSecret({
@@ -23,8 +23,8 @@ export const authenticate: RequestHandler = expressjwt({
         ) {
             return req.headers.authorization.split(' ')[1]
         } else if (req.cookies && (req.cookies as AuthToken)) {
-            const { accessToken } = req.cookies as AuthToken
-            return accessToken
+            const { access_token } = req.cookies as AuthToken
+            return access_token
         }
     },
 })
