@@ -3,7 +3,6 @@
 Base URL is the service origin (e.g. `http://localhost:5501`).  
 Protected routes expect a valid JWT in the `access_token` cookie or `Authorization: Bearer <token>`.
 
----
 
 ## Auth
 
@@ -30,7 +29,6 @@ Creates a user (role `customer`) and sets auth cookies.
 
 **Cookies:** `access_token`, `refresh_token` (HttpOnly, SameSite=Strict)
 
----
 
 ### Login
 
@@ -53,7 +51,6 @@ Authenticates and sets auth cookies.
 
 **Error:** `401` — Invalid email or password
 
----
 
 ### Get current user
 
@@ -76,7 +73,6 @@ Returns the authenticated user (no password).
 
 **Error:** `401` — Missing or invalid token
 
----
 
 ### Refresh tokens
 
@@ -94,7 +90,6 @@ Uses the refresh token (cookie or Bearer) to issue new access and refresh tokens
 
 **Error:** `401` — Invalid or revoked refresh token
 
----
 
 ### Logout
 
@@ -109,7 +104,6 @@ Invalidates the current refresh token and clears auth cookies.
 { "message": "Logout successful" }
 ```
 
----
 
 ## Tenants
 
@@ -129,7 +123,6 @@ All tenant mutations require **admin** role.
 
 **Success:** `201 Created` — `{ "id": 1 }`
 
----
 
 ### Update tenant
 
@@ -142,7 +135,6 @@ All tenant mutations require **admin** role.
 
 **Error:** `400` — Invalid `id` param
 
----
 
 ### List tenants
 
@@ -168,7 +160,6 @@ All tenant mutations require **admin** role.
 }
 ```
 
----
 
 ### Get tenant
 
@@ -179,7 +170,6 @@ All tenant mutations require **admin** role.
 
 **Error:** `400` — Invalid id or tenant not found
 
----
 
 ### Delete tenant
 
@@ -190,7 +180,6 @@ All tenant mutations require **admin** role.
 
 **Error:** `400` — Invalid id
 
----
 
 ## Users
 
@@ -216,7 +205,6 @@ All user endpoints require **admin** role.
 
 **Error:** `400` — Validation or email already registered
 
----
 
 ### Update user
 
@@ -229,7 +217,6 @@ All user endpoints require **admin** role.
 
 **Error:** `400` — Invalid id or validation
 
----
 
 ### List users
 
@@ -256,7 +243,6 @@ All user endpoints require **admin** role.
 }
 ```
 
----
 
 ### Get user
 
@@ -267,7 +253,6 @@ All user endpoints require **admin** role.
 
 **Error:** `400` — Invalid id or user not found
 
----
 
 ### Delete user
 
@@ -278,7 +263,6 @@ All user endpoints require **admin** role.
 
 **Error:** `400` — Invalid id
 
----
 
 ## Error responses
 
