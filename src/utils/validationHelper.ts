@@ -10,7 +10,7 @@ export function validateNumericId(id: string | string[] | undefined): number {
         throw createHttpError(400, 'Invalid url param.')
     }
     const parsedId = Number(id)
-    if (Number.isNaN(parsedId)) {
+    if (Number.isNaN(parsedId) || !Number.isInteger(parsedId)) {
         throw createHttpError(400, 'Invalid url param.')
     }
     return parsedId
