@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { Logger } from 'winston'
 import { matchedData } from 'express-validator'
-import type { createTenantRequest, TenantQueryParams } from '../types/index.js'
+import type { CreateTenantRequest, TenantQueryParams } from '../types/index.js'
 import type { TenantService } from '../services/TenantService.js'
 import createHttpError from 'http-errors'
 
@@ -11,7 +11,7 @@ export class TenantController {
         private readonly logger: Logger
     ) {}
 
-    async create(req: createTenantRequest, res: Response, next: NextFunction) {
+    async create(req: CreateTenantRequest, res: Response, next: NextFunction) {
         const { name, address } = req.body
         this.logger.debug('Request for creating a tenant', req.body)
 
@@ -25,7 +25,7 @@ export class TenantController {
         }
     }
 
-    async update(req: createTenantRequest, res: Response, next: NextFunction) {
+    async update(req: CreateTenantRequest, res: Response, next: NextFunction) {
         const { name, address } = req.body
         const tenantId = req.params.id
 

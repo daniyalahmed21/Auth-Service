@@ -1,5 +1,5 @@
 import type { NextFunction, Response } from 'express'
-import type { AuthRequest, registerUserRequest } from '../types/index.js'
+import type { AuthRequest, RegisterUserRequest } from '../types/index.js'
 import type { UserService } from '../services/UserService.js'
 import type { TokenService } from '../services/TokenService.js'
 import type { Logger } from 'winston'
@@ -15,7 +15,7 @@ export class AuthController {
     ) {}
 
     async register(
-        req: registerUserRequest,
+        req: RegisterUserRequest,
         res: Response,
         next: NextFunction
     ) {
@@ -67,7 +67,7 @@ export class AuthController {
         }
     }
 
-    async login(req: registerUserRequest, res: Response, next: NextFunction) {
+    async login(req: RegisterUserRequest, res: Response, next: NextFunction) {
         const { email, password } = req.body
 
         try {

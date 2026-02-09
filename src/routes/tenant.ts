@@ -10,7 +10,7 @@ import { AppDataSource } from '../config/data-source.js'
 import { Tenant } from '../entity/Tenant.js'
 import logger from '../config/logger.js'
 
-import type { createTenantRequest } from '../types/index.js'
+import type { CreateTenantRequest } from '../types/index.js'
 import { ROLES } from '../constants/index.js'
 import { authenticate } from '../middleware/authenticate.js'
 import { canAccess } from '../middleware/canAccess.js'
@@ -30,7 +30,7 @@ router.post(
     canAccess([ROLES.ADMIN]),
     tenantValidator,
     validateRequest,
-    (req: createTenantRequest, res: Response, next: NextFunction) =>
+    (req: CreateTenantRequest, res: Response, next: NextFunction) =>
         tenantController.create(req, res, next) as unknown as RequestHandler
 )
 
@@ -40,7 +40,7 @@ router.patch(
     canAccess([ROLES.ADMIN]),
     tenantValidator,
     validateRequest,
-    (req: createTenantRequest, res: Response, next: NextFunction) =>
+    (req: CreateTenantRequest, res: Response, next: NextFunction) =>
         tenantController.update(req, res, next) as unknown as RequestHandler
 )
 
