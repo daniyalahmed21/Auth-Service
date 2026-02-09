@@ -15,9 +15,8 @@ export const parseRefreshToken: RequestHandler = expressjwt({
             req.headers.authorization.startsWith('Bearer ')
         ) {
             return req.headers.authorization.split(' ')[1]
-        } else if (req.cookies && (req.cookies as RefreshTokenCookie)) {
-            const { refresh_token } = req.cookies as RefreshTokenCookie
-            return refresh_token
+        } else if (req.cookies?.refresh_token) {
+            return (req.cookies as RefreshTokenCookie).refresh_token
         }
     },
 })

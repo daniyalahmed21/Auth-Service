@@ -3,8 +3,8 @@
  * Throws on missing required vars.
  */
 import { config } from 'dotenv'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 function required(key: string): string {
     const value = process.env[key]

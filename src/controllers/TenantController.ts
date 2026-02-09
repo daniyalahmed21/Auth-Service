@@ -7,8 +7,8 @@ import createHttpError from 'http-errors'
 
 export class TenantController {
     constructor(
-        private tenantService: TenantService,
-        private logger: Logger
+        private readonly tenantService: TenantService,
+        private readonly logger: Logger
     ) {}
 
     async create(req: createTenantRequest, res: Response, next: NextFunction) {
@@ -29,7 +29,7 @@ export class TenantController {
         const { name, address } = req.body
         const tenantId = req.params.id
 
-        if (isNaN(Number(tenantId))) {
+        if (Number.isNaN(Number(tenantId))) {
             next(createHttpError(400, 'Invalid url param.'))
             return
         }
@@ -72,7 +72,7 @@ export class TenantController {
     async getOne(req: Request, res: Response, next: NextFunction) {
         const tenantId = req.params.id
 
-        if (isNaN(Number(tenantId))) {
+        if (Number.isNaN(Number(tenantId))) {
             next(createHttpError(400, 'Invalid url param.'))
             return
         }
@@ -95,7 +95,7 @@ export class TenantController {
     async destroy(req: Request, res: Response, next: NextFunction) {
         const tenantId = req.params.id
 
-        if (isNaN(Number(tenantId))) {
+        if (Number.isNaN(Number(tenantId))) {
             next(createHttpError(400, 'Invalid url param.'))
             return
         }

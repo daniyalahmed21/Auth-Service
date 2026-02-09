@@ -10,15 +10,13 @@ export class TokenService {
     private privateKey: Buffer | null = null
 
     constructor(
-        private refreshTokenRepository = AppDataSource.getRepository(
+        private readonly refreshTokenRepository = AppDataSource.getRepository(
             RefreshToken
         )
     ) {}
 
     private getPrivateKey(): Buffer {
-        if (!this.privateKey) {
-            this.privateKey = loadPrivateKey()
-        }
+        this.privateKey ??= loadPrivateKey()
         return this.privateKey
     }
 
