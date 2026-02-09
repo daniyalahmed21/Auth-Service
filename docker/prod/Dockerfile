@@ -1,4 +1,4 @@
-FROM node:18-alpine as builder
+FROM node:18 AS builder
 
 WORKDIR /app
 
@@ -6,20 +6,20 @@ COPY package*.json ./
 
 ENV NODE_ENV=production
 
-RUN npm ci 
+RUN npm ci
 
 COPY . .
 
 RUN npm run build
 
-FROM node:18-alpine as runner
+FROM node:18 AS runner
 
 WORKDIR /app
 
 COPY package*.json ./
 
 
-RUN npm ci  --ignore-scripts
+RUN npm ci --ignore-scripts
 
 COPY --from=builder /app/dist ./
 

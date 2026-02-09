@@ -17,8 +17,4 @@ export const AppDataSource = new DataSource({
     entities: [User, Tenant, RefreshToken],
     migrations: ['src/migration/*.js'],
     subscribers: [],
-    extra: {
-        // Prefer IPv4 connections to avoid IPv6 connectivity issues
-        family: 4,
-    },
 })
