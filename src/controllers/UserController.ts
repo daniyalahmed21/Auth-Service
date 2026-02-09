@@ -8,6 +8,7 @@ import type {
 import createHttpError from 'http-errors'
 import type { Logger } from 'winston'
 import { matchedData } from 'express-validator'
+import { validateNumericId } from '../utils/validationHelper.js'
 
 export class UserController {
     constructor(
@@ -35,17 +36,13 @@ export class UserController {
 
     async update(req: UpdateUserRequest, res: Response, next: NextFunction) {
         const { firstName, lastName, role, email, tenantId } = req.body
-        const userId = req.params.id
-
-        if (Number.isNaN(Number(userId))) {
-            next(createHttpError(400, 'Invalid url param.'))
-            return
-        }
-
-        this.logger.debug('Request for updating a user', req.body)
 
         try {
-            await this.userService.update(Number(userId), {
+            const userId = validateNumericId(req.params.id)
+
+            this.logger.debug('Request for updating a user', req.body)
+
+            await this.userService.update(userId, {
                 firstName,
                 lastName,
                 role,
@@ -55,7 +52,7 @@ export class UserController {
 
             this.logger.info('User has been updated', { id: userId })
 
-            res.json({ id: Number(userId) })
+            res.json({ id: userId })
         } catch (err) {
             next(err)
         }
@@ -82,15 +79,9 @@ export class UserController {
     }
 
     async getOne(req: Request, res: Response, next: NextFunction) {
-        const userId = req.params.id
-
-        if (Number.isNaN(Number(userId))) {
-            next(createHttpError(400, 'Invalid url param.'))
-            return
-        }
-
         try {
-            const user = await this.userService.findById(Number(userId))
+            const userId = validateNumericId(req.params.id)
+            const user = await this.userService.findById(userId)
 
             if (!user) {
                 next(createHttpError(400, 'User does not exist.'))
@@ -105,20 +96,12 @@ export class UserController {
     }
 
     async destroy(req: Request, res: Response, next: NextFunction) {
-        const userId = req.params.id
-
-        if (Number.isNaN(Number(userId))) {
-            next(createHttpError(400, 'Invalid url param.'))
-            return
-        }
-
         try {
-            await this.userService.deleteById(Number(userId))
+            const userId = validateNumericId(req.params.id)
+            await this.userService.deleteById(userId)
 
-            this.logger.info('User has been deleted', {
-                id: Number(userId),
-            })
-            res.json({ id: Number(userId) })
+            this.logger.info('User has been deleted', { id: userId })
+            res.json({ id: userId })
         } catch (err) {
             next(err)
         }

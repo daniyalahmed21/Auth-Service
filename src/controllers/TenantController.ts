@@ -4,6 +4,7 @@ import { matchedData } from 'express-validator'
 import type { CreateTenantRequest, TenantQueryParams } from '../types/index.js'
 import type { TenantService } from '../services/TenantService.js'
 import createHttpError from 'http-errors'
+import { validateNumericId } from '../utils/validationHelper.js'
 
 export class TenantController {
     constructor(
@@ -27,24 +28,19 @@ export class TenantController {
 
     async update(req: CreateTenantRequest, res: Response, next: NextFunction) {
         const { name, address } = req.body
-        const tenantId = req.params.id
-
-        if (Number.isNaN(Number(tenantId))) {
-            next(createHttpError(400, 'Invalid url param.'))
-            return
-        }
-
-        this.logger.debug('Request for updating a tenant', req.body)
 
         try {
-            await this.tenantService.update(Number(tenantId), {
+            const tenantId = validateNumericId(req.params.id)
+            this.logger.debug('Request for updating a tenant', req.body)
+
+            await this.tenantService.update(tenantId, {
                 name,
                 address,
             })
 
             this.logger.info('Tenant has been updated', { id: tenantId })
 
-            res.json({ id: Number(tenantId) })
+            res.json({ id: tenantId })
         } catch (err) {
             next(err)
         }
@@ -70,15 +66,9 @@ export class TenantController {
     }
 
     async getOne(req: Request, res: Response, next: NextFunction) {
-        const tenantId = req.params.id
-
-        if (Number.isNaN(Number(tenantId))) {
-            next(createHttpError(400, 'Invalid url param.'))
-            return
-        }
-
         try {
-            const tenant = await this.tenantService.getById(Number(tenantId))
+            const tenantId = validateNumericId(req.params.id)
+            const tenant = await this.tenantService.getById(tenantId)
 
             if (!tenant) {
                 next(createHttpError(400, 'Tenant does not exist.'))
@@ -93,20 +83,12 @@ export class TenantController {
     }
 
     async destroy(req: Request, res: Response, next: NextFunction) {
-        const tenantId = req.params.id
-
-        if (Number.isNaN(Number(tenantId))) {
-            next(createHttpError(400, 'Invalid url param.'))
-            return
-        }
-
         try {
-            await this.tenantService.deleteById(Number(tenantId))
+            const tenantId = validateNumericId(req.params.id)
+            await this.tenantService.deleteById(tenantId)
 
-            this.logger.info('Tenant has been deleted', {
-                id: Number(tenantId),
-            })
-            res.json({ id: Number(tenantId) })
+            this.logger.info('Tenant has been deleted', { id: tenantId })
+            res.json({ id: tenantId })
         } catch (err) {
             next(err)
         }
