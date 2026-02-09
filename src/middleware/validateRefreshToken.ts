@@ -1,9 +1,8 @@
 import { expressjwt } from 'express-jwt'
 import { Config } from '../config/index.js'
-import type { RequestHandler } from 'express'
+import type { RequestHandler, Request } from 'express'
 import { AppDataSource } from '../config/data-source.js'
 import logger from '../config/logger.js'
-import type { Request } from 'express'
 import { RefreshToken } from '../entity/RefreshToken.js'
 
 interface RefreshTokenCookie {
@@ -19,9 +18,8 @@ export const validateRefreshToken: RequestHandler = expressjwt({
             req.headers.authorization.startsWith('Bearer ')
         ) {
             return req.headers.authorization.split(' ')[1]
-        } else if (req.cookies && (req.cookies as RefreshTokenCookie)) {
-            const { refresh_token } = req.cookies as RefreshTokenCookie
-            return refresh_token
+        } else if (req.cookies?.refresh_token) {
+            return (req.cookies as RefreshTokenCookie).refresh_token
         }
     },
 

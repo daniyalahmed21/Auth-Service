@@ -1,21 +1,43 @@
 import type { NextFunction, Response } from 'express'
-import type { AuthRequest, registerUserRequest } from '../types/index.js'
+import type { AuthRequest, RegisterUserRequest } from '../types/index.js'
 import type { UserService } from '../services/UserService.js'
 import type { TokenService } from '../services/TokenService.js'
 import type { Logger } from 'winston'
-import { ROLES, COOKIE_OPTIONS } from '../constants/index.js'
+import { ROLES } from '../constants/index.js'
 import createHttpError from 'http-errors'
 import type { JwtPayload } from 'jsonwebtoken'
+import type { User } from '../entity/User.js'
+import { setAuthCookies } from '../utils/cookieHelper.js'
 
 export class AuthController {
     constructor(
-        private userService: UserService,
-        private tokenService: TokenService,
-        private logger: Logger
+        private readonly userService: UserService,
+        private readonly tokenService: TokenService,
+        private readonly logger: Logger
     ) {}
 
+    private async generateTokensForUser(user: User): Promise<{
+        accessToken: string
+        refreshToken: string
+    }> {
+        const payload: JwtPayload = {
+            sub: String(user.id),
+            role: user.role,
+        }
+
+        const accessToken = this.tokenService.generateAccessToken(payload)
+        const newRefreshToken =
+            await this.tokenService.persistRefreshToken(user)
+        const refreshToken = this.tokenService.generateRefreshToken(
+            payload,
+            String(newRefreshToken.id)
+        )
+
+        return { accessToken, refreshToken }
+    }
+
     async register(
-        req: registerUserRequest,
+        req: RegisterUserRequest,
         res: Response,
         next: NextFunction
     ) {
@@ -33,29 +55,10 @@ export class AuthController {
             })
             this.logger.info(`User registered with id: ${user.id}`)
 
-            const payload: JwtPayload = {
-                sub: String(user.id),
-                role: user.role,
-            }
+            const { accessToken, refreshToken } =
+                await this.generateTokensForUser(user)
 
-            const accessToken = this.tokenService.generateAccessToken(payload)
-
-            const newRefreshToken =
-                await this.tokenService.persistRefreshToken(user)
-
-            const refreshToken = this.tokenService.generateRefreshToken(
-                payload,
-                String(newRefreshToken.id)
-            )
-
-            res.cookie('access_token', accessToken, {
-                ...COOKIE_OPTIONS,
-                maxAge: COOKIE_OPTIONS.accessTokenMaxAge,
-            })
-            res.cookie('refresh_token', refreshToken, {
-                ...COOKIE_OPTIONS,
-                maxAge: COOKIE_OPTIONS.refreshTokenMaxAge,
-            })
+            setAuthCookies(res, accessToken, refreshToken)
 
             return res.status(201).json({
                 message: 'Registration successful',
@@ -67,7 +70,7 @@ export class AuthController {
         }
     }
 
-    async login(req: registerUserRequest, res: Response, next: NextFunction) {
+    async login(req: RegisterUserRequest, res: Response, next: NextFunction) {
         const { email, password } = req.body
 
         try {
@@ -89,29 +92,10 @@ export class AuthController {
                 throw error
             }
 
-            const payload: JwtPayload = {
-                sub: String(user.id),
-                role: user.role,
-            }
+            const { accessToken, refreshToken } =
+                await this.generateTokensForUser(user)
 
-            const accessToken = this.tokenService.generateAccessToken(payload)
-
-            const newRefreshToken =
-                await this.tokenService.persistRefreshToken(user)
-
-            const refreshToken = this.tokenService.generateRefreshToken(
-                payload,
-                String(newRefreshToken.id)
-            )
-
-            res.cookie('access_token', accessToken, {
-                ...COOKIE_OPTIONS,
-                maxAge: COOKIE_OPTIONS.accessTokenMaxAge,
-            })
-            res.cookie('refresh_token', refreshToken, {
-                ...COOKIE_OPTIONS,
-                maxAge: COOKIE_OPTIONS.refreshTokenMaxAge,
-            })
+            setAuthCookies(res, accessToken, refreshToken)
 
             return res.status(200).json({
                 message: 'Login successful',
@@ -158,32 +142,15 @@ export class AuthController {
                 return
             }
 
-            const payload: JwtPayload = {
-                sub: req.auth.sub,
-                role: req.auth.role,
-            }
-
-            const accessToken = this.tokenService.generateAccessToken(payload)
-
             const tokenId = req.auth.jti
             if (tokenId) {
                 await this.tokenService.deleteRefreshToken(tokenId)
             }
-            const newRefreshToken =
-                await this.tokenService.persistRefreshToken(user)
-            const refreshToken = this.tokenService.generateRefreshToken(
-                payload,
-                String(newRefreshToken.id)
-            )
 
-            res.cookie('access_token', accessToken, {
-                ...COOKIE_OPTIONS,
-                maxAge: COOKIE_OPTIONS.accessTokenMaxAge,
-            })
-            res.cookie('refresh_token', refreshToken, {
-                ...COOKIE_OPTIONS,
-                maxAge: COOKIE_OPTIONS.refreshTokenMaxAge,
-            })
+            const { accessToken, refreshToken } =
+                await this.generateTokensForUser(user)
+
+            setAuthCookies(res, accessToken, refreshToken)
 
             return res.status(200).json({ id: user.id })
         } catch (error) {

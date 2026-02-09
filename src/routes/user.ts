@@ -1,10 +1,14 @@
-import express from 'express'
+import express, {
+    type NextFunction,
+    type RequestHandler,
+    type Request,
+    type Response,
+} from 'express'
 import { AppDataSource } from '../config/data-source.js'
 import { User } from '../entity/User.js'
 import { UserService } from '../services/UserService.js'
 import { UserController } from '../controllers/UserController.js'
 import logger from '../config/logger.js'
-import type { NextFunction, RequestHandler } from 'express'
 import { authenticate } from '../middleware/authenticate.js'
 import { canAccess } from '../middleware/canAccess.js'
 import { ROLES } from '../constants/index.js'
@@ -13,7 +17,6 @@ import type { CreateUserRequest, UpdateUserRequest } from '../types/index.js'
 import updateUserValidator from '../validators/updateUserValidator.js'
 import listUserValidator from '../validators/listUserValidator.js'
 import { validateRequest } from '../middleware/validateRequest.js'
-import type { Request, Response } from 'express'
 
 const router = express.Router()
 

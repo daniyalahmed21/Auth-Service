@@ -6,5 +6,17 @@ export default defineConfig({
         env: {
             NODE_ENV: 'test',
         },
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'lcov', 'html'],
+            exclude: [
+                'node_modules/',
+                'tests/',
+                'dist/',
+                '**/*.spec.ts',
+                '**/*.test.ts',
+                '**/migration/**',
+            ],
+        },
     },
 })

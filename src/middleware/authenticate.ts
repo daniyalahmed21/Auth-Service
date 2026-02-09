@@ -22,9 +22,8 @@ export const authenticate: RequestHandler = expressjwt({
             req.headers.authorization.startsWith('Bearer ')
         ) {
             return req.headers.authorization.split(' ')[1]
-        } else if (req.cookies && (req.cookies as AuthToken)) {
-            const { access_token } = req.cookies as AuthToken
-            return access_token
+        } else if (req.cookies?.access_token) {
+            return (req.cookies as AuthToken).access_token
         }
     },
 })

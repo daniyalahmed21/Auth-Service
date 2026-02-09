@@ -10,7 +10,7 @@ export interface UserData {
     tenantId?: number | undefined
 }
 
-export interface registerUserRequest extends Request {
+export interface RegisterUserRequest extends Request {
     body: UserData
 }
 
@@ -32,7 +32,7 @@ export interface TenantData {
     address: string
 }
 
-export interface createTenantRequest extends Request {
+export interface CreateTenantRequest extends Request {
     body: TenantData
 }
 

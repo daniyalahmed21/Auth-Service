@@ -1,12 +1,11 @@
-import { type Repository } from 'typeorm'
-import type { QueryDeepPartialEntity } from 'typeorm'
+import { type Repository, type QueryDeepPartialEntity } from 'typeorm'
 import type { User } from '../entity/User.js'
 import type { UserData, UserQueryParams } from '../types/index.js'
 import bcrypt from 'bcryptjs'
 import createHttpError from 'http-errors'
 
 export class UserService {
-    constructor(private userRepository: Repository<User>) {}
+    constructor(private readonly userRepository: Repository<User>) {}
 
     async create(userData: UserData) {
         const { firstName, lastName, email, password, role, tenantId } =

@@ -1,6 +1,6 @@
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import createHttpError from 'http-errors'
 import logger from '../config/logger.js'
 
@@ -14,7 +14,7 @@ export function loadPrivateKey(): Buffer {
     if (privateKeyFromEnv) {
         try {
             // Handle both single-line and multi-line keys (replace escaped newlines)
-            const keyContent = privateKeyFromEnv.replace(/\\n/g, '\n')
+            const keyContent = privateKeyFromEnv.replaceAll('\\n', '\n')
             return Buffer.from(keyContent, 'utf-8')
         } catch (err) {
             logger.error(
