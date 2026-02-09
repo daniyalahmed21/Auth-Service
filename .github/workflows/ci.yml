@@ -39,6 +39,7 @@ jobs:
 
     build-and-push-docker:
         name: Build and Push Docker Image
+        needs: build-and-test
         runs-on: ubuntu-latest
         env:
             IMAGE_NAME: daniyalahmed25/auth-service
