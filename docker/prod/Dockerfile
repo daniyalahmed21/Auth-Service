@@ -1,10 +1,11 @@
-FROM node:18 AS builder
+FROM node:18-bookworm AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
 
 ENV NODE_ENV=production
+ENV PATH="/usr/local/bin:${PATH}"
 
 RUN npm ci
 
@@ -12,12 +13,11 @@ COPY . .
 
 RUN npm run build
 
-FROM node:18 AS runner
+FROM node:18-bookworm AS runner
 
 WORKDIR /app
 
 COPY package*.json ./
-
 
 RUN npm ci --ignore-scripts
 
