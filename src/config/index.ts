@@ -29,6 +29,7 @@ const {
     DB_NAME,
     REFRESH_TOKEN_SECRET,
     JWKS_URI,
+    FRONTEND_URL,
 } = {
     PORT: required('PORT'),
     NODE_ENV: required('NODE_ENV'),
@@ -39,6 +40,7 @@ const {
     DB_PORT: required('DB_PORT'),
     REFRESH_TOKEN_SECRET: required('REFRESH_TOKEN_SECRET'),
     JWKS_URI: required('JWKS_URI'),
+    FRONTEND_URL: required('FRONTEND_URL'),
 }
 
 export const Config = {
@@ -51,4 +53,5 @@ export const Config = {
     DB_NAME,
     REFRESH_TOKEN_SECRET,
     JWKS_URI,
+    FRONTEND_URL,
 }
