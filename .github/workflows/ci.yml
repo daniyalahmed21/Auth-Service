@@ -29,6 +29,7 @@ jobs:
                   JWKS_URI: ${{ secrets.JWKS_URI }}
                   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
                   PORT: ${{ secrets.PORT }}
+                  FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
             - name: Build-ts
               run: npm run build
             - name: SonarCloud Scan

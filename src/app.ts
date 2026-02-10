@@ -8,8 +8,16 @@ import { globalErrorHandler } from './middleware/errorHandler.js'
 import authRouter from './routes/auth.js'
 import tenantRouter from './routes/tenant.js'
 import userRouter from './routes/user.js'
+import cors from 'cors'
+import { Config } from './config/index.js'
 
 const app = express()
+app.use(
+    cors({
+        origin: [Config.FRONTEND_URL],
+        credentials: true,
+    })
+)
 app.use(express.static('public', { dotfiles: 'allow' }))
 app.use(cookieParser())
 app.use(express.json())
