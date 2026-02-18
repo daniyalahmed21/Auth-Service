@@ -123,6 +123,7 @@ export class AuthController {
                 lastName: user.lastName,
                 email: user.email,
                 role: user.role,
+                tenant: user.tenant,
             })
         } catch (error) {
             next(error)
