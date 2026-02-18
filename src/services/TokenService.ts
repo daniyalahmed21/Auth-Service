@@ -22,7 +22,7 @@ export class TokenService {
 
     generateAccessToken(payload: JwtPayload): string {
         return jwt.sign(payload, this.getPrivateKey(), {
-            expiresIn: '1h',
+            expiresIn: '1m',
             algorithm: 'RS256',
             issuer: TOKEN_ISSUER,
         })
